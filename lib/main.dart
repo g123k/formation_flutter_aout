@@ -39,7 +39,8 @@ class AddCard extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
     double width = size.width;
-    double height = size.width;
+    double height = size.heightadd *
+    ;
 
     return Scaffold(
       appBar: AppBar(
