@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:formation_flutter/bloc/counter_screen.dart';
 import 'package:formation_flutter/res/app_colors.dart';
 import 'package:formation_flutter/screens/details/details.dart';
+import 'package:formation_flutter/screens/homepage/homepage.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
           BuildContext context,
           GoRouterState state,
         ) {
-          return const CounterScreen();
+          return const HomePage();
         }),
     GoRoute(
         path: '/details',
