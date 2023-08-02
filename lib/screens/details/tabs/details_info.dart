@@ -341,10 +341,12 @@ class _EcoScore extends StatelessWidget {
             const SizedBox(
               width: 10.0,
             ),
-            Text(
-              _findLabel(),
-              style: const TextStyle(
-                color: AppColors.gray2,
+            Expanded(
+              child: Text(
+                _findLabel(),
+                style: const TextStyle(
+                  color: AppColors.gray2,
+                ),
               ),
             ),
           ],
@@ -408,22 +410,24 @@ class _Info extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    final Product product = ProductContainer.of(context).product;
+
+    return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         _ProductItemValue(
           label: 'Quantité',
-          value: '200g (égoutté 130g)',
+          value: product.quantity ?? '',
         ),
         _ProductItemValue(
           label: 'Vendu',
-          value: 'France',
+          value: product.manufacturingCountries?.join(', ') ?? '',
           includeDivider: false,
         ),
-        SizedBox(
+        const SizedBox(
           height: 15.0,
         ),
-        Row(
+        const Row(
           children: [
             Expanded(
               flex: 40,
@@ -526,6 +530,7 @@ class _ProductBubble extends StatelessWidget {
           Expanded(
             child: Text(
               label,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(color: AppColors.white),
             ),
           )
