@@ -1,168 +1,234 @@
 import 'package:flutter/material.dart';
-import 'package:formation_flutter/res/app_colors.dart';
+import 'package:formation_flutter/model/product.dart';
 import 'package:formation_flutter/res/app_icons.dart';
-import 'package:formation_flutter/res/app_images.dart';
+import 'package:formation_flutter/screens/details/details_utils.dart';
+import 'package:formation_flutter/screens/details/tabs/details_info.dart';
+import 'package:formation_flutter/screens/details/tabs/details_nutrition.dart';
+import 'package:formation_flutter/screens/details/tabs/details_nutritional_values.dart';
+import 'package:formation_flutter/screens/details/tabs/details_summary.dart';
 
-class DetailsScreen extends StatelessWidget {
-  const DetailsScreen({super.key});
+// TEMP
+
+class ProductContainer extends InheritedWidget {
+  final Product product;
+
+  const ProductContainer({
+    Key? key,
+    required Widget child,
+    required this.product,
+  }) : super(key: key, child: child);
+
+  static ProductContainer of(BuildContext context) {
+    final ProductContainer? result =
+        context.dependOnInheritedWidgetOfExactType<ProductContainer>();
+    assert(result != null, 'No ProductContainer found in context');
+    return result!;
+  }
+
+  @override
+  bool updateShouldNotify(ProductContainer oldWidget) {
+    return product != oldWidget.product;
+  }
+}
+
+// TEMP
+
+class DetailsScreen extends StatefulWidget {
+  const DetailsScreen({Key? key}) : super(key: key);
+
+  @override
+  State<DetailsScreen> createState() => _ProductDetailsState();
+}
+
+class _ProductDetailsState extends State<DetailsScreen> {
+  final ScrollController _controller = ScrollController();
+  ProductDetailsTab _currentTab = ProductDetailsTab.info;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Image.network(
-              'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1610&q=80',
-              width: double.infinity,
-              height: 250.0,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) =>
-                  const ColoredBox(color: Colors.black38, child: Placeholder()),
-            ),
+    final Widget child;
+
+    switch (_currentTab) {
+      case ProductDetailsTab.info:
+        child = const ProductInfo();
+        break;
+      case ProductDetailsTab.nutrition:
+        child = const ProductNutrition();
+        break;
+      case ProductDetailsTab.nutritionalValues:
+        child = const ProductNutritionalValues();
+        break;
+      case ProductDetailsTab.summary:
+        child = const ProductSummary();
+        break;
+    }
+
+    return PrimaryScrollController(
+      controller: _controller,
+      child: ProductContainer(
+        product: _generateFakeProduct(),
+        child: Scaffold(
+          body: Stack(
+            children: [
+              Positioned.fill(child: child),
+              const Align(
+                alignment: AlignmentDirectional.topStart,
+                child: _HeaderIcon(
+                  icon: AppIcons.close,
+                  tooltip: 'Fermer l\'écran',
+                ),
+              ),
+              const Align(
+                alignment: AlignmentDirectional.topEnd,
+                child: _HeaderIcon(
+                  icon: AppIcons.share,
+                  tooltip: 'Partager',
+                ),
+              ),
+            ],
           ),
-          Positioned.fill(
-            child: SingleChildScrollView(
-              child: Container(
-                height: MediaQuery.of(context).size.height + 15.0,
-                margin: const EdgeInsets.only(top: 235.0),
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
-                decoration: const BoxDecoration(
+          bottomNavigationBar: BottomNavigationBar(
+            onTap: (int selectedPosition) {
+              final ProductDetailsTab newTab =
+                  ProductDetailsTab.values[selectedPosition];
+
+              if (newTab != _currentTab) {
+                if (_controller.hasClients) {
+                  _controller.jumpTo(0.0);
+                }
+
+                setState(() {
+                  _currentTab = newTab;
+                });
+              }
+            },
+            items: ProductDetailsTab.values.map((e) {
+              String? label;
+              IconData? icon;
+
+              switch (e) {
+                case ProductDetailsTab.info:
+                  icon = AppIcons.tab_barcode;
+                  label = "Fiche";
+                  break;
+                case ProductDetailsTab.nutritionalValues:
+                  icon = AppIcons.tab_fridge;
+                  label = "Caractéristiques";
+                  break;
+                case ProductDetailsTab.nutrition:
+                  icon = AppIcons.tab_nutrition;
+                  label = "Nutrition";
+                  break;
+                case ProductDetailsTab.summary:
+                  icon = AppIcons.tab_array;
+                  label = "Tableau";
+              }
+
+              return BottomNavigationBarItem(
+                icon: Icon(icon),
+                label: label,
+              );
+            }).toList(growable: false),
+            currentIndex: _currentTab.index,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Product _generateFakeProduct() {
+    return Product(
+      barcode: '123456789',
+      name: 'Petits pois et carottes',
+      brands: ['Cassegrain'],
+      altName: 'Petits pois & carottes à l\'étuvée avec garniture',
+      nutriScore: ProductNutriscore.A,
+      novaScore: ProductNovaScore.Group1,
+      ecoScore: ProductEcoScore.D,
+      quantity: '200g (égoutté 130g)',
+      manufacturingCountries: ['France'],
+      picture:
+          'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1610&q=80',
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}
+
+enum ProductDetailsTab {
+  info,
+  nutrition,
+  nutritionalValues,
+  summary,
+}
+
+class _HeaderIcon extends StatefulWidget {
+  final IconData icon;
+  final String? tooltip;
+  final VoidCallback? onPressed;
+
+  const _HeaderIcon({
+    required this.icon,
+    // ignore: unused_element
+    this.tooltip,
+    // ignore: unused_element
+    this.onPressed,
+  });
+
+  @override
+  State<_HeaderIcon> createState() => _HeaderIconState();
+}
+
+class _HeaderIconState extends State<_HeaderIcon> {
+  double _opacity = 0.0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    PrimaryScrollController.of(context).addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    final double newOpacity = DetailsScreenUtils.scrollProgress(context);
+
+    if (newOpacity != _opacity) {
+      setState(() {
+        _opacity = newOpacity;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Material(
+          type: MaterialType.transparency,
+          child: Tooltip(
+            message: widget.tooltip,
+            child: InkWell(
+              onTap: widget.onPressed ?? () {},
+              customBorder: const CircleBorder(),
+              child: Ink(
+                padding: const EdgeInsets.all(15.0),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color:
+                      Theme.of(context).primaryColorLight.withOpacity(_opacity),
+                ),
+                child: Icon(
+                  widget.icon,
                   color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20.0),
-                    topRight: Radius.circular(20.0),
-                  ),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Header(),
-                    Scores(),
-                  ],
                 ),
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class Header extends StatelessWidget {
-  const Header({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Titre 1'),
-          Text('Titre 2'),
-          Text('Titre 3'),
-        ],
-      ),
-    );
-  }
-}
-
-class Scores extends StatelessWidget {
-  const Scores({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    TextStyle? headlineMedium = Theme.of(context).textTheme.headlineMedium;
-
-    return ColoredBox(
-      color: AppColors.gray1,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20.0,
-              vertical: 15.0,
-            ),
-            child: IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 40,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Nutri-Score',
-                          style: headlineMedium,
-                        ),
-                        Image.asset(
-                          AppImages.nutriscoreA,
-                          height: 80.0,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: VerticalDivider(
-                      width: 1.0,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 60,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Groupe NOVA',
-                          style: headlineMedium,
-                        ),
-                        const Text(
-                          'Produits alimentaires et boissons ultra-transformés',
-                          style: TextStyle(color: AppColors.gray2),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-          const Divider(
-            color: AppColors.gray2,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20.0,
-              vertical: 15.0,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Eco score',
-                  style: headlineMedium,
-                ),
-                const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(AppIcons.ecoscore_d, color: AppColors.ecoScoreD),
-                    SizedBox(width: 10.0),
-                    Text('Impact environnemental élevé'),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

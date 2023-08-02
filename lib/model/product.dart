@@ -83,6 +83,7 @@ class NutrientLevels {
 
 enum ProductNutriscore { A, B, C, D, E }
 
+// ignore_for_file: constant_identifier_names
 enum ProductNovaScore { Group1, Group2, Group3, Group4 }
 
 enum ProductEcoScore { A, B, C, D, E }

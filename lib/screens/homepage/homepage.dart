@@ -9,9 +9,9 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
-    double width = size.width;
-    double height = size.height;
+    final Size size = MediaQuery.sizeOf(context);
+    final double width = size.width;
+    final double height = size.height;
 
     return Scaffold(
       appBar: AppBar(
