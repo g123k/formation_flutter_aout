@@ -1,18 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:formation_flutter/res/app_colors.dart';
 import 'package:formation_flutter/screens/details/details.dart';
+import 'package:formation_flutter/screens/homepage/homepage.dart';
+import 'package:go_router/go_router.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  final GoRouter _router = GoRouter(routes: [
+    GoRoute(
+        path: '/',
+        builder: (
+          BuildContext context,
+          GoRouterState state,
+        ) {
+          return const HomePage();
+        }),
+    GoRoute(
+        path: '/details',
+        builder: (
+          BuildContext context,
+          GoRouterState state,
+        ) {
+          return const DetailsScreen();
+        }),
+  ]);
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
+      routerConfig: _router,
       title: 'Flutter Demo',
       theme: ThemeData(
         fontFamily: 'Avenir',
@@ -63,8 +85,6 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      //home: const HomePage(),
-      home: const DetailsScreen(),
     );
   }
 }
