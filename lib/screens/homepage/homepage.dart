@@ -3,16 +3,15 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:formation_flutter/res/app_colors.dart';
 import 'package:formation_flutter/res/app_icons.dart';
 import 'package:formation_flutter/res/app_vectorial_images.dart';
-import 'package:go_router/go_router.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.sizeOf(context);
-    final double width = size.width;
-    final double height = size.height;
+    Size size = MediaQuery.sizeOf(context);
+    double width = size.width;
+    double height = size.height;
 
     return Scaffold(
       appBar: AppBar(
@@ -45,9 +44,7 @@ class HomePage extends StatelessWidget {
               height: height * 0.05,
             ),
             TextButton(
-              onPressed: () {
-                GoRouter.of(context).push('/details');
-              },
+              onPressed: () {},
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.blue,
                 shape: const RoundedRectangleBorder(
