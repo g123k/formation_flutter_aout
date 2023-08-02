@@ -15,7 +15,7 @@ class CounterScreen extends StatelessWidget {
           child: Column(
             children: [
               FutureBuilder(
-                future: NetworkRequest().getPokemon(),
+                future: NetworkRequest().getProduct(),
                 builder: (BuildContext context,
                     AsyncSnapshot<PokemonResponse> data) {
                   if (data.hasData) {

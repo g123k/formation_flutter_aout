@@ -41,7 +41,7 @@ class _ProductDetailsState extends State<DetailsScreen> {
     return PrimaryScrollController(
       controller: _controller,
       child: BlocProvider<ProductBloc>(
-        create: (_) => ProductBloc('TODO'),
+        create: (_) => ProductBloc('5000159484695'),
         child: Scaffold(
           body: BlocBuilder<ProductBloc, ProductBlocState>(
               builder: (BuildContext context, ProductBlocState state) {

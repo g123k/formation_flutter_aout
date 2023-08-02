@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:formation_flutter/model/product.dart';
+import 'package:formation_flutter/screens/details/product_request.dart';
 
 // Event
 abstract class ProductBlocEvent {}
@@ -31,24 +32,25 @@ class ProductBloc extends Bloc<ProductBlocEvent, ProductBlocState> {
     Emitter<ProductBlocState> emit,
   ) async {
     final String barcode = (event as LoadProductEvent).barcode;
-    // TODO
-    await Future.delayed(const Duration(seconds: 5));
-    emit(ProductBlocState(_generateFakeProduct()));
-  }
+    final ProductResponse response = await NetworkRequest().getProduct(barcode);
+    emit(
+      ProductBlocState(
+        Product(
+          barcode: response.response.barcode,
+          name: response.response.name,
+          brands: response.response.brands,
+          altName: response.response.altName,
+          nutriScore: ProductNutriscore.values.firstWhere(
+              (element) => element.letter == response.response.nutriScore),
 
-  Product _generateFakeProduct() {
-    return Product(
-      barcode: '123456789',
-      name: 'Petits pois et carottes',
-      brands: ['Cassegrain'],
-      altName: 'Petits pois & carottes à l\'étuvée avec garniture',
-      nutriScore: ProductNutriscore.A,
-      novaScore: ProductNovaScore.Group1,
-      ecoScore: ProductEcoScore.D,
-      quantity: '150g (égoutté 130g)',
-      manufacturingCountries: ['France'],
-      picture:
-          'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1610&q=80',
+          quantity: response.response.quantity,
+          manufacturingCountries: response.response.countries,
+          picture: response.response.pictures.product,
+          // TODO Faire mieux
+          novaScore: ProductNovaScore.Group1,
+          ecoScore: ProductEcoScore.A,
+        ),
+      ),
     );
   }
 }

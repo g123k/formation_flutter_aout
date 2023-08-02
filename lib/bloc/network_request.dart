@@ -41,7 +41,7 @@ class NetworkRequest {
           baseUrl: 'https://pokeapi.co/api/v2/',
         );
 
-  Future<PokemonResponse> getPokemon() {
+  Future<PokemonResponse> getProduct() {
     return api.getPokemon();
   }
 }

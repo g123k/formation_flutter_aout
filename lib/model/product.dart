@@ -81,7 +81,17 @@ class NutrientLevels {
   NutrientLevels({this.salt, this.saturatedFat, this.sugars, this.fat});
 }
 
-enum ProductNutriscore { A, B, C, D, E }
+enum ProductNutriscore {
+  A('A'),
+  B('B'),
+  C('C'),
+  D('D'),
+  E('E');
+
+  final String letter;
+
+  const ProductNutriscore(this.letter);
+}
 
 // ignore_for_file: constant_identifier_names
 enum ProductNovaScore { Group1, Group2, Group3, Group4 }
