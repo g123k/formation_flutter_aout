@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formation_flutter/model/product.dart';
 import 'package:formation_flutter/res/app_colors.dart';
 import 'package:formation_flutter/res/app_icons.dart';
 import 'package:formation_flutter/res/app_images.dart';
-import 'package:formation_flutter/screens/details/details.dart';
 import 'package:formation_flutter/screens/details/details_utils.dart';
+import 'package:formation_flutter/screens/details/product_bloc.dart';
 
 class ProductInfo extends StatefulWidget {
   static const double kImageHeight = 300.0;
@@ -39,13 +40,17 @@ class _ProductInfoState extends State<ProductInfo> {
         return false;
       },
       child: Stack(children: [
-        Image.network(
-          ProductContainer.of(context).product.picture ?? '',
-          width: double.infinity,
-          height: ProductInfo.kImageHeight,
-          fit: BoxFit.cover,
-          color: Colors.black.withOpacity(_currentScrollProgress),
-          colorBlendMode: BlendMode.srcATop,
+        BlocBuilder<ProductBloc, ProductBlocState>(
+          builder: (BuildContext context, ProductBlocState state) {
+            return Image.network(
+              state.product!.picture!,
+              width: double.infinity,
+              height: ProductInfo.kImageHeight,
+              fit: BoxFit.cover,
+              color: Colors.black.withOpacity(_currentScrollProgress),
+              colorBlendMode: BlendMode.srcATop,
+            );
+          },
         ),
         Positioned.fill(
           child: SingleChildScrollView(
@@ -113,7 +118,8 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
-    final Product product = ProductContainer.of(context).product;
+    final Product product =
+        BlocProvider.of<ProductBloc>(context).state.product!;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -129,7 +135,7 @@ class _Header extends StatelessWidget {
         ),
         if (product.brands != null) ...[
           Text(
-            'Cassegrain',
+            product.brands?.join(', ') ?? '',
             style: textTheme.displayMedium,
           ),
           const SizedBox(
@@ -410,7 +416,8 @@ class _Info extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Product product = ProductContainer.of(context).product;
+    final Product product =
+        BlocProvider.of<ProductBloc>(context).state.product!;
 
     return Column(
       mainAxisSize: MainAxisSize.min,

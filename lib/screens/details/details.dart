@@ -1,37 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:formation_flutter/model/product.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formation_flutter/res/app_icons.dart';
 import 'package:formation_flutter/screens/details/details_utils.dart';
+import 'package:formation_flutter/screens/details/product_bloc.dart';
 import 'package:formation_flutter/screens/details/tabs/details_info.dart';
 import 'package:formation_flutter/screens/details/tabs/details_nutrition.dart';
 import 'package:formation_flutter/screens/details/tabs/details_nutritional_values.dart';
 import 'package:formation_flutter/screens/details/tabs/details_summary.dart';
-
-// TEMP
-
-class ProductContainer extends InheritedWidget {
-  final Product product;
-
-  const ProductContainer({
-    Key? key,
-    required Widget child,
-    required this.product,
-  }) : super(key: key, child: child);
-
-  static ProductContainer of(BuildContext context) {
-    final ProductContainer? result =
-        context.dependOnInheritedWidgetOfExactType<ProductContainer>();
-    assert(result != null, 'No ProductContainer found in context');
-    return result!;
-  }
-
-  @override
-  bool updateShouldNotify(ProductContainer oldWidget) {
-    return product != oldWidget.product;
-  }
-}
-
-// TEMP
 
 class DetailsScreen extends StatefulWidget {
   const DetailsScreen({Key? key}) : super(key: key);
@@ -65,28 +40,35 @@ class _ProductDetailsState extends State<DetailsScreen> {
 
     return PrimaryScrollController(
       controller: _controller,
-      child: ProductContainer(
-        product: _generateFakeProduct(),
+      child: BlocProvider<ProductBloc>(
+        create: (_) => ProductBloc('TODO'),
         child: Scaffold(
-          body: Stack(
-            children: [
-              Positioned.fill(child: child),
-              const Align(
-                alignment: AlignmentDirectional.topStart,
-                child: _HeaderIcon(
-                  icon: AppIcons.close,
-                  tooltip: 'Fermer l\'écran',
-                ),
-              ),
-              const Align(
-                alignment: AlignmentDirectional.topEnd,
-                child: _HeaderIcon(
-                  icon: AppIcons.share,
-                  tooltip: 'Partager',
-                ),
-              ),
-            ],
-          ),
+          body: BlocBuilder<ProductBloc, ProductBlocState>(
+              builder: (BuildContext context, ProductBlocState state) {
+            if (state.product == null) {
+              return const Center(child: CircularProgressIndicator());
+            } else {
+              return Stack(
+                children: [
+                  Positioned.fill(child: child),
+                  const Align(
+                    alignment: AlignmentDirectional.topStart,
+                    child: _HeaderIcon(
+                      icon: AppIcons.close,
+                      tooltip: 'Fermer l\'écran',
+                    ),
+                  ),
+                  const Align(
+                    alignment: AlignmentDirectional.topEnd,
+                    child: _HeaderIcon(
+                      icon: AppIcons.share,
+                      tooltip: 'Partager',
+                    ),
+                  ),
+                ],
+              );
+            }
+          }),
           bottomNavigationBar: BottomNavigationBar(
             onTap: (int selectedPosition) {
               final ProductDetailsTab newTab =
@@ -133,22 +115,6 @@ class _ProductDetailsState extends State<DetailsScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Product _generateFakeProduct() {
-    return Product(
-      barcode: '123456789',
-      name: 'Petits pois et carottes',
-      brands: ['Cassegrain'],
-      altName: 'Petits pois & carottes à l\'étuvée avec garniture',
-      nutriScore: ProductNutriscore.A,
-      novaScore: ProductNovaScore.Group1,
-      ecoScore: ProductEcoScore.D,
-      quantity: '200g (égoutté 130g)',
-      manufacturingCountries: ['France'],
-      picture:
-          'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1610&q=80',
     );
   }
 
